@@ -4,8 +4,14 @@
  * LICENSE file.
  */
 var stackOverFlowUrl = "stackoverflow.com";
+var runBadge = chrome.extension.getURL("favicon.ico");
+
+function findRequiredPackages (codeText) {
+
+}
 
 var handleClick = function (code) {
+	$.blockUI({ message: '<h1><img src="' + runBadge + '" /> Your Runnable is loading...</h1>' })
 	$.post("http://runnable.com/api/projects/", {"framework":"node.js"}, function (data){
 		console.log(data._id);
 		$.ajax({
@@ -23,7 +29,6 @@ var handleClick = function (code) {
 // Test the text of the body element against our regular expression.
 if (document.location.href.indexOf(stackOverFlowUrl) != -1) {
 	var codeArray = $(document).find("code");
-	var runBadge = chrome.extension.getURL("favicon.ico");
 	codeArray.each(function (index, code) {
 	var codeText = code.innerText;
 		if (codeText.length > 35) {

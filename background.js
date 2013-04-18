@@ -11,7 +11,7 @@ function onRequest(request, sender, sendResponse) {
   // Show the page action for the tab that the sender (content script)
   // was on.
   chrome.pageAction.show(sender.tab.id);
-  console.log("Get REQUEST");
+  // console.log("Get REQUEST");
   // if (!isAttached) {
   // 	isAttached = true;
 	 // 	chrome.pageAction.onClicked.addListener(function(tab) {
