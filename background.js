@@ -4,10 +4,21 @@
 
 // Called when a message is passed.  We assume that the content script
 // wants to show the page action.
+
+var isAttached = false
+
 function onRequest(request, sender, sendResponse) {
   // Show the page action for the tab that the sender (content script)
   // was on.
   chrome.pageAction.show(sender.tab.id);
+  if (!isAttached) {
+  	isAttached = true;
+	 	chrome.pageAction.onClicked.addListener(function(tab) {
+	 		chrome.tabs.create({'url': "http://runnable.com/express"}, function(tab) {
+	    // Tab opened.
+	  	});
+	  });
+  }
 
   // Return nothing to let the connection be cleaned up.
   sendResponse({});
