@@ -10,18 +10,23 @@ var isAttached = false
 function onRequest(request, sender, sendResponse) {
   // Show the page action for the tab that the sender (content script)
   // was on.
-  chrome.pageAction.show(sender.tab.id);
-  // console.log("Get REQUEST");
-  // if (!isAttached) {
-  // 	isAttached = true;
-	 // 	chrome.pageAction.onClicked.addListener(function(tab) {
-	 // 		chrome.tabs.create({'url': "http://runnable.com/express"}, function(tab) {
-	 //    // Tab openeds
-	 //  	});
-	 //  });
-  // }
-  // // Return nothing to let the connection be cleaned up.
-  // sendResponse({});
+
+  $.get("http://localhost:3000/chrome/checkRun", function(data) {
+    if (data == "OK") {
+      chrome.pageAction.show(sender.tab.id);
+      if (!isAttached) {
+        isAttached = true;
+        chrome.pageAction.onClicked.addListener(function(tab) {
+          chrome.tabs.create({'url': "http://runnable.com/express"}, function(tab) {
+          // Tab opened.
+          });
+        });
+      }
+    }
+    // Return nothing to let the connection be cleaned up.
+    sendResponse({});
+  });
+
 };
 
 // Listen for the content script to send a message to the background page.
