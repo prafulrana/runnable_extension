@@ -16,7 +16,7 @@
         "http://*/*",
         "https://*/*"
       ],
-      "js" : ["libs/jquery-1.9.1.min.js", "libs/jquery.blockUI.js","contentscript.js"],
+      "js" : ["libs/jquery-1.9.1.min.js", "libs/jquery.blockUI.js", "contentscript.js"],
       "run_at" : "document_idle",
       "all_frames" : false
     }

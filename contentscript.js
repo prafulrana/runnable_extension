@@ -9,21 +9,32 @@ var runBadge = chrome.extension.getURL("favicon.ico");
 function findRequiredPackages (codeText) {
 
 }
+var runnable_url = "http://localhost:3000";
 
 var handleClick = function (code) {
 	$.blockUI({ message: '<h1><img src="' + runBadge + '" /> Your Runnable is loading...</h1>' })
-	$.post("http://runnable.com/api/projects/", {"framework":"node.js"}, function (data){
-		console.log(data._id);
-		$.ajax({
-		   url: "http://runnable.com/api/projects/" + data._id + "/files/server.js",
-		   type: 'PUT',
-		   success: function(response) {
-		   	// alert("checkout http://runnable.com/" + data._id);
-		   	window.location.replace("http://runnable.com/" + data._id);
-		   },
-		   data: {"content": code, "name": "server.js"}
-		});
+	$.ajax({
+		url: runnable_url + "/api/projects/",
+		type:'POST',
+		data: {"framework":"node.js"},
+		success: function (data){
+			console.log(data._id);
+			console.log(data);
+			$.ajax({
+			   url: runnable_url + "/api/projects/" + data._id + "/files/server.js",
+			   type: 'PUT',
+			   success: function(response) {
+			   	// alert("checkout http://runnable.com/" + data._id);
+			   	window.location.replace(runnable_url + "/" + data._id);
+			   },
+			   data: {"content": code, "name": "server.js"}
+			});
+		}
 	});
+
+
+
+
 }
 
 // Test the text of the body element against our regular expression.
