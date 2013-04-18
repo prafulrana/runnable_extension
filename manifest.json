@@ -16,7 +16,7 @@
         "http://*/*",
         "https://*/*"
       ],
-      "js" : ["contentscript.js"],
+      "js" : ["libs/jquery-1.9.1.min.js", "contentscript.js"],
       "run_at" : "document_idle",
       "all_frames" : false
     }
@@ -25,5 +25,6 @@
     "48" : "sandwich-48.png",
     "128" : "sandwich-128.png"
   },
-  "manifest_version": 2
+  "manifest_version": 2,
+  "web_accessible_resources": ["favicon.ico"]
 }
