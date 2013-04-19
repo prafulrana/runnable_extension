@@ -21,42 +21,51 @@ function getNodeCoreApiArray(cb) {
 }
 
 
-function findRequiredPackages (codeText) {
+function findRequiredPackages (codeText, cb) {
 	var ctr = 0;
 	var results = [];
-	codeText.split("require(").forEach(function (require){
-		ctr++;
-		if (ctr > 1) {
-			var library = require.split(")").shift().replace(/['"]/g,'');
-			getNodeCoreApiArray(function (apiArray){
-				if (library.indexOf(".js") == -1 &&
-					library.indexOf(".git") == -1 &&
-					$.inArray(library, apiArray)) {
-					results.push(library);
-				}
-			});
-		}
+
+	getNodeCoreApiArray(function (apiArray) {
+		codeText.split("require(").forEach(function (require){
+			ctr++;
+			if (ctr > 1) {
+				var library = require.split(")").shift().replace(/['"]/g,'');
+
+					console.log(library, ":", $.inArray(library, apiArray));
+					if (library.indexOf(".js") == -1 &&
+						library.indexOf(".git") == -1 &&
+						$.inArray(library, apiArray) <  0) {
+						results.push(library);
+					}
+			}
+		});
+		console.log(results);
+		cb(results);
 	});
-	return results
 }
 
-function getPackageJson (codeText) {
+function getPackageJson (codeText, cb) {
 	var packagekjson = '{\n"name": "HelloWorld",\n"author": "Runnable",\n"version": "0.0.1",\n"description": "Runnable Sample Application",\n"dependencies": {';
 	var ctr = 0;
-	findRequiredPackages(codeText).forEach(function (library){
-		if (ctr > 0)
-			packagekjson += ',\n"';
-		else
-			packagekjson += '\n"';
+	findRequiredPackages(codeText, function (packages){
+		packages.forEach(function (library){
+			if (ctr > 0)
+				packagekjson += ',\n"';
+			else
+				packagekjson += '\n"';
 
-		packagekjson += library + '":"*"';
-		ctr++;
+			packagekjson += library + '":"*"';
+			ctr++;
+		});
+		packagekjson += '\n},\n"engine": "' + nodeVersion + '"\n}';
+		cb(packagekjson);
 	});
-	packagekjson += '\n},\n"engine": "' + nodeVersion + '"\n}';
-    return packagekjson;
 }
 
-
+function openInNewTab (url) {
+  var win=window.open(url, '_blank');
+  win.focus();
+}
 
 var handleClick = function (code) {
 	$.blockUI({ message: '<h1><img src="' + runBadge + '" /> Your Runnable is loading...</h1>' });
@@ -72,15 +81,16 @@ var handleClick = function (code) {
 			   type: 'PUT',
 			   success: function(response_server) {
 			   	// alert("checkout http://runnable.com/" + data._id);
-					$.ajax({
-					   url: runnable_url + "/api/projects/" + data._id + "/files/package.json",
-					   type: 'PUT',
-					   success: function(response_package) {
-					   	// alert("checkout http://runnable.com/" + data._id);
-					   	window.location.replace(runnable_url + "/" + data._id);
-					   },
-					   data: {"content": getPackageJson(code), "name": "package.json"}
-					});
+			   		getPackageJson(code, function (packagejson){
+						$.ajax({
+						   url: runnable_url + "/api/projects/" + data._id + "/files/package.json",
+						   type: 'PUT',
+						   success: function(response_package) {
+						   	openInNewTab(runnable_url + "/" + data._id);
+						   },
+						   data: {"content": packagejson, "name": "package.json"}
+						});
+			   		});
 			   },
 			   data: {"content": code, "name": "server.js"}
 			});
