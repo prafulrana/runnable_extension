@@ -8,6 +8,19 @@ var runnable_url = "http://runnable.com";
 var runBadge = chrome.extension.getURL("favicon.ico");
 var nodeVersion = "node 0.6.x";
 
+
+function getNodeCoreApiArray(cb) {
+	var results = [];
+	$.get("http://nodejs.org/api/index.json", function(data){
+		data.desc.forEach(function(apiObj){
+			if (apiObj.text)
+				results.push(apiObj.text.split("(")[1].split(".")[0]);
+		});
+		cb(results);
+	});
+}
+
+
 function findRequiredPackages (codeText) {
 	var ctr = 0;
 	var results = [];
@@ -15,11 +28,13 @@ function findRequiredPackages (codeText) {
 		ctr++;
 		if (ctr > 1) {
 			var library = require.split(")").shift().replace(/['"]/g,'');
-			if (library.indexOf(".js") == -1 &&
-				library.indexOf(".git") == -1 &&
-				library != "http") {
-				results.push(library);
-			}
+			getNodeCoreApiArray(function (apiArray){
+				if (library.indexOf(".js") == -1 &&
+					library.indexOf(".git") == -1 &&
+					$.inArray(library, apiArray)) {
+					results.push(library);
+				}
+			});
 		}
 	});
 	return results
@@ -42,6 +57,7 @@ function getPackageJson (codeText) {
 }
 
 
+
 var handleClick = function (code) {
 	$.blockUI({ message: '<h1><img src="' + runBadge + '" /> Your Runnable is loading...</h1>' });
 	$.ajax({
@@ -61,8 +77,6 @@ var handleClick = function (code) {
 					   type: 'PUT',
 					   success: function(response_package) {
 					   	// alert("checkout http://runnable.com/" + data._id);
-
-
 					   	window.location.replace(runnable_url + "/" + data._id);
 					   },
 					   data: {"content": getPackageJson(code), "name": "package.json"}
